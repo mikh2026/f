@@ -67,7 +67,7 @@ const observer = new IntersectionObserver((entries) => {
 
 // Observe elements for animation
 document.addEventListener('DOMContentLoaded', () => {
-    const animateElements = document.querySelectorAll('.service-card, .team-member, .stat-item, .about-content, .contact-content');
+    const animateElements = document.querySelectorAll('.service-card, .stat-item, .about-content, .contact-content, .team-content, .section-header');
     animateElements.forEach(el => {
         observer.observe(el);
     });
@@ -87,14 +87,14 @@ if (contactForm) {
         
         // Simple validation
         if (!name || !email || !message) {
-            alert('Пожалуйста, заполните все поля');
+            showNotification('Пожалуйста, заполните все поля', 'error');
             return;
         }
         
         // Email validation
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(email)) {
-            alert('Пожалуйста, введите корректный email');
+            showNotification('Пожалуйста, введите корректный email', 'error');
             return;
         }
         
@@ -107,7 +107,7 @@ if (contactForm) {
         
         // Simulate API call
         setTimeout(() => {
-            alert('Спасибо! Ваше сообщение отправлено. Мы свяжемся с вами в ближайшее время.');
+            showNotification('Спасибо! Ваше сообщение отправлено. Мы свяжемся с вами в ближайшее время.', 'success');
             this.reset();
             submitBtn.textContent = originalText;
             submitBtn.disabled = false;
@@ -115,15 +115,66 @@ if (contactForm) {
     });
 }
 
+// Notification system
+function showNotification(message, type = 'info') {
+    const notification = document.createElement('div');
+    notification.className = `notification notification-${type}`;
+    notification.innerHTML = `
+        <div class="notification-content">
+            <span class="notification-message">${message}</span>
+            <button class="notification-close">&times;</button>
+        </div>
+    `;
+    
+    // Add styles
+    notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: ${type === 'success' ? '#10b981' : type === 'error' ? '#ef4444' : '#0B68F0'};
+        color: white;
+        padding: 1rem 1.5rem;
+        border-radius: 10px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        z-index: 10000;
+        transform: translateX(400px);
+        transition: transform 0.3s ease;
+        max-width: 400px;
+    `;
+    
+    document.body.appendChild(notification);
+    
+    // Animate in
+    setTimeout(() => {
+        notification.style.transform = 'translateX(0)';
+    }, 100);
+    
+    // Auto remove after 5 seconds
+    setTimeout(() => {
+        notification.style.transform = 'translateX(400px)';
+        setTimeout(() => {
+            document.body.removeChild(notification);
+        }, 300);
+    }, 5000);
+    
+    // Close button
+    notification.querySelector('.notification-close').addEventListener('click', () => {
+        notification.style.transform = 'translateX(400px)';
+        setTimeout(() => {
+            document.body.removeChild(notification);
+        }, 300);
+    });
+}
+
 // Header background on scroll
 window.addEventListener('scroll', () => {
     const header = document.querySelector('.header');
     if (window.scrollY > 100) {
-        header.style.background = 'rgba(255, 255, 255, 0.98)';
-        header.style.boxShadow = '0 2px 30px rgba(0, 0, 0, 0.15)';
+        header.style.background = 'rgba(18, 18, 19, 0.98)';
+        header.style.boxShadow = '0 2px 30px rgba(0, 0, 0, 0.5)';
     } else {
-        header.style.background = 'rgba(255, 255, 255, 0.95)';
-        header.style.boxShadow = '0 2px 20px rgba(0, 0, 0, 0.1)';
+        header.style.background = 'rgba(18, 18, 19, 0.95)';
+        header.style.boxShadow = '0 2px 20px rgba(0, 0, 0, 0.3)';
     }
 });
 
@@ -170,7 +221,7 @@ window.addEventListener('scroll', () => {
     const scrolled = window.pageYOffset;
     const hero = document.querySelector('.hero');
     if (hero) {
-        const rate = scrolled * -0.5;
+        const rate = scrolled * -0.3;
         hero.style.transform = `translateY(${rate}px)`;
     }
 });
@@ -178,33 +229,33 @@ window.addEventListener('scroll', () => {
 // Add loading animation to page
 window.addEventListener('load', () => {
     document.body.classList.add('loaded');
+    
+    // Add fade-in effect to all sections
+    const sections = document.querySelectorAll('section');
+    sections.forEach((section, index) => {
+        setTimeout(() => {
+            section.style.opacity = '1';
+            section.style.transform = 'translateY(0)';
+        }, index * 200);
+    });
 });
 
 // Service cards hover effect enhancement
 document.querySelectorAll('.service-card').forEach(card => {
     card.addEventListener('mouseenter', function() {
         this.style.transform = 'translateY(-15px) scale(1.02)';
+        this.style.borderColor = '#0B68F0';
     });
     
     card.addEventListener('mouseleave', function() {
         this.style.transform = 'translateY(0) scale(1)';
-    });
-});
-
-// Team member cards interaction
-document.querySelectorAll('.team-member').forEach(member => {
-    member.addEventListener('mouseenter', function() {
-        this.style.transform = 'translateY(-10px) scale(1.02)';
-    });
-    
-    member.addEventListener('mouseleave', function() {
-        this.style.transform = 'translateY(0) scale(1)';
+        this.style.borderColor = 'rgba(11, 104, 240, 0.2)';
     });
 });
 
 // Smooth reveal animation for sections
 function revealOnScroll() {
-    const reveals = document.querySelectorAll('.section-header, .about-content, .services-grid, .team-grid, .contact-content');
+    const reveals = document.querySelectorAll('.section-header, .about-content, .services-grid, .team-content, .contact-content, .stats-grid');
     
     reveals.forEach(element => {
         const windowHeight = window.innerHeight;
@@ -240,6 +291,14 @@ document.addEventListener('DOMContentLoaded', () => {
         
         setTimeout(typeWriter, 500);
     }
+    
+    // Add initial styles for fade-in animation
+    const sections = document.querySelectorAll('section');
+    sections.forEach(section => {
+        section.style.opacity = '0';
+        section.style.transform = 'translateY(30px)';
+        section.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+    });
 });
 
 // Back to top button functionality
@@ -252,7 +311,7 @@ backToTopBtn.style.cssText = `
     right: 30px;
     width: 50px;
     height: 50px;
-    background: #2563eb;
+    background: #0B68F0;
     color: white;
     border: none;
     border-radius: 50%;
@@ -261,7 +320,7 @@ backToTopBtn.style.cssText = `
     align-items: center;
     justify-content: center;
     font-size: 1.2rem;
-    box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
+    box-shadow: 0 4px 15px rgba(11, 104, 240, 0.3);
     transition: all 0.3s ease;
     z-index: 1000;
 `;
@@ -285,10 +344,62 @@ window.addEventListener('scroll', () => {
 
 backToTopBtn.addEventListener('mouseenter', function() {
     this.style.transform = 'scale(1.1)';
-    this.style.background = '#1d4ed8';
+    this.style.background = '#0954c7';
 });
 
 backToTopBtn.addEventListener('mouseleave', function() {
     this.style.transform = 'scale(1)';
-    this.style.background = '#2563eb';
+    this.style.background = '#0B68F0';
 });
+
+// Add glow effect to buttons on hover
+document.querySelectorAll('.btn-primary').forEach(btn => {
+    btn.addEventListener('mouseenter', function() {
+        this.style.boxShadow = '0 0 30px rgba(11, 104, 240, 0.6)';
+    });
+    
+    btn.addEventListener('mouseleave', function() {
+        this.style.boxShadow = '0 4px 15px rgba(11, 104, 240, 0.3)';
+    });
+});
+
+// Add floating animation to stats
+document.querySelectorAll('.stat-item').forEach((item, index) => {
+    item.style.animationDelay = `${index * 0.2}s`;
+    item.classList.add('float-animation');
+});
+
+// Add CSS for float animation
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes float {
+        0%, 100% { transform: translateY(0px); }
+        50% { transform: translateY(-10px); }
+    }
+    
+    .float-animation {
+        animation: float 3s ease-in-out infinite;
+    }
+    
+    .notification-content {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 1rem;
+    }
+    
+    .notification-close {
+        background: none;
+        border: none;
+        color: white;
+        font-size: 1.5rem;
+        cursor: pointer;
+        padding: 0;
+        line-height: 1;
+    }
+    
+    .notification-close:hover {
+        opacity: 0.8;
+    }
+`;
+document.head.appendChild(style);
